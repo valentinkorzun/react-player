@@ -1,3 +1,5 @@
+import Hls from 'hls.js';
+
 import React, { Component } from 'react'
 
 import { getSDK, isMediaStream, supportsWebKitPresentationMode } from '../utils'
@@ -7,8 +9,6 @@ const HAS_NAVIGATOR = typeof navigator !== 'undefined'
 const IS_IPAD_PRO = HAS_NAVIGATOR && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
 const IS_IOS = HAS_NAVIGATOR && (/iPad|iPhone|iPod/.test(navigator.userAgent) || IS_IPAD_PRO) && !window.MSStream
 const IS_SAFARI = HAS_NAVIGATOR && (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) && !window.MSStream
-const HLS_SDK_URL = 'https://cdn.jsdelivr.net/npm/hls.js@VERSION/dist/hls.min.js'
-const HLS_GLOBAL = 'Hls'
 
 export default class FilePlayer extends Component {
   static displayName = 'FilePlayer'
@@ -161,18 +161,16 @@ export default class FilePlayer extends Component {
       this.dash.reset()
     }
     if (this.shouldUseHLS(url)) {
-      getSDK(HLS_SDK_URL.replace('VERSION', hlsVersion), HLS_GLOBAL).then(Hls => {
-        this.hls = new Hls(hlsOptions)
-        this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          this.props.onReady()
-        })
-        this.hls.on(Hls.Events.ERROR, (e, data) => {
-          this.props.onError(e, data, this.hls, Hls)
-        })
-        this.hls.loadSource(url)
-        this.hls.attachMedia(this.player)
-        this.props.onLoaded()
+      this.hls = new Hls(hlsOptions)
+      this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        this.props.onReady()
       })
+      this.hls.on(Hls.Events.ERROR, (e, data) => {
+        this.props.onError(e, data, this.hls, Hls)
+      })
+      this.hls.loadSource(url)
+      this.hls.attachMedia(this.player)
+      this.props.onLoaded()
     }
 
     if (url instanceof Array) {

@@ -9,13 +9,6 @@ const IS_IOS = HAS_NAVIGATOR && (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
 const IS_SAFARI = HAS_NAVIGATOR && (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) && !window.MSStream
 const HLS_SDK_URL = 'https://cdn.jsdelivr.net/npm/hls.js@VERSION/dist/hls.min.js'
 const HLS_GLOBAL = 'Hls'
-const DASH_SDK_URL = 'https://cdnjs.cloudflare.com/ajax/libs/dashjs/VERSION/dash.all.min.js'
-const DASH_GLOBAL = 'dashjs'
-const FLV_SDK_URL = 'https://cdn.jsdelivr.net/npm/flv.js@VERSION/dist/flv.min.js'
-const FLV_GLOBAL = 'flvjs'
-const MATCH_DROPBOX_URL = /www\.dropbox\.com\/.+/
-const MATCH_CLOUDFLARE_STREAM = /https:\/\/watch\.cloudflarestream\.com\/([a-z0-9]+)/
-const REPLACE_CLOUDFLARE_STREAM = 'https://videodelivery.net/{id}/manifest/video.m3u8'
 
 export default class FilePlayer extends Component {
   static displayName = 'FilePlayer'
@@ -148,7 +141,7 @@ export default class FilePlayer extends Component {
     if (IS_IOS || this.props.config.forceDisableHls) {
       return false
     }
-    return HLS_EXTENSIONS.test(url) || MATCH_CLOUDFLARE_STREAM.test(url)
+    return HLS_EXTENSIONS.test(url)
   }
 
   shouldUseDASH (url) {
@@ -160,7 +153,7 @@ export default class FilePlayer extends Component {
   }
 
   load (url) {
-    const { hlsVersion, hlsOptions, dashVersion, flvVersion } = this.props.config
+    const { hlsVersion, hlsOptions } = this.props.config
     if (this.hls) {
       this.hls.destroy()
     }
@@ -176,37 +169,8 @@ export default class FilePlayer extends Component {
         this.hls.on(Hls.Events.ERROR, (e, data) => {
           this.props.onError(e, data, this.hls, Hls)
         })
-        if (MATCH_CLOUDFLARE_STREAM.test(url)) {
-          const id = url.match(MATCH_CLOUDFLARE_STREAM)[1]
-          this.hls.loadSource(REPLACE_CLOUDFLARE_STREAM.replace('{id}', id))
-        } else {
-          this.hls.loadSource(url)
-        }
+        this.hls.loadSource(url)
         this.hls.attachMedia(this.player)
-        this.props.onLoaded()
-      })
-    }
-    if (this.shouldUseDASH(url)) {
-      getSDK(DASH_SDK_URL.replace('VERSION', dashVersion), DASH_GLOBAL).then(dashjs => {
-        this.dash = dashjs.MediaPlayer().create()
-        this.dash.initialize(this.player, url, this.props.playing)
-        this.dash.on('error', this.props.onError)
-        if (parseInt(dashVersion) < 3) {
-          this.dash.getDebug().setLogToBrowserConsole(false)
-        } else {
-          this.dash.updateSettings({ debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE } })
-        }
-        this.props.onLoaded()
-      })
-    }
-    if (this.shouldUseFLV(url)) {
-      getSDK(FLV_SDK_URL.replace('VERSION', flvVersion), FLV_GLOBAL).then(flvjs => {
-        this.flv = flvjs.createPlayer({ type: 'flv', url })
-        this.flv.attachMediaElement(this.player)
-        this.flv.on(flvjs.Events.ERROR, (e, data) => {
-          this.props.onError(e, data, this.flv, flvjs)
-        })
-        this.flv.load()
         this.props.onLoaded()
       })
     }
@@ -323,9 +287,6 @@ export default class FilePlayer extends Component {
     const useFLV = this.shouldUseFLV(url)
     if (url instanceof Array || isMediaStream(url) || useHLS || useDASH || useFLV) {
       return undefined
-    }
-    if (MATCH_DROPBOX_URL.test(url)) {
-      return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
     }
     return url
   }

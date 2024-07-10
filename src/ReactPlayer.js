@@ -4,10 +4,9 @@ import memoize from 'memoize-one'
 import isEqual from 'react-fast-compare'
 
 import { propTypes, defaultProps } from './props'
-import { omit, lazy } from './utils'
+import { omit } from './utils'
 import Player from './Player'
 
-const Preview = lazy(() => import(/* webpackChunkName: 'reactPlayerPreview' */'./Preview'))
 
 const IS_BROWSER = typeof window !== 'undefined' && window.document && typeof document !== 'undefined'
 const IS_GLOBAL = typeof global !== 'undefined' && global.window && global.window.document
@@ -133,22 +132,6 @@ export const createReactPlayer = (players, fallback) => {
       return omit(this.props, SUPPORTED_PROPS)
     })
 
-    renderPreview (url) {
-      if (!url) return null
-      const { light, playIcon, previewTabIndex, oEmbedUrl, previewAriaLabel } = this.props
-      return (
-        <Preview
-          url={url}
-          light={light}
-          playIcon={playIcon}
-          previewTabIndex={previewTabIndex}
-          previewAriaLabel={previewAriaLabel}
-          oEmbedUrl={oEmbedUrl}
-          onClick={this.handleClickPreview}
-        />
-      )
-    }
-
     renderActivePlayer = url => {
       if (!url) return null
       const player = this.getActivePlayer(url)
@@ -174,9 +157,7 @@ export const createReactPlayer = (players, fallback) => {
       return (
         <Wrapper ref={wrapperRef} style={{ ...style, width, height }} {...attributes}>
           <UniversalSuspense fallback={fallback}>
-            {showPreview
-              ? this.renderPreview(url)
-              : this.renderActivePlayer(url)}
+            {this.renderActivePlayer(url)}
           </UniversalSuspense>
         </Wrapper>
       )

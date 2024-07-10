@@ -122,57 +122,7 @@ export const defaultProps = {
   light: false,
   fallback: null,
   wrapper: 'div',
-  previewTabIndex: 0,
-  previewAriaLabel: '',
-  oEmbedUrl: 'https://noembed.com/embed?url={url}',
   config: {
-    soundcloud: {
-      options: {
-        visual: true, // Undocumented, but makes player fill container and look better
-        buying: false,
-        liking: false,
-        download: false,
-        sharing: false,
-        show_comments: false,
-        show_playcount: false
-      }
-    },
-    youtube: {
-      playerVars: {
-        playsinline: 1,
-        showinfo: 0,
-        rel: 0,
-        iv_load_policy: 3,
-        modestbranding: 1
-      },
-      embedOptions: {},
-      onUnstarted: noop
-    },
-    facebook: {
-      appId: '1309697205772819',
-      version: 'v3.3',
-      playerId: null,
-      attributes: {}
-    },
-    dailymotion: {
-      params: {
-        api: 1,
-        'endscreen-enable': false
-      }
-    },
-    vimeo: {
-      playerOptions: {
-        autopause: false,
-        byline: false,
-        portrait: false,
-        title: false
-      },
-      title: null
-    },
-    mux: {
-      attributes: {},
-      version: '2'
-    },
     file: {
       attributes: {},
       tracks: [],
@@ -187,23 +137,6 @@ export const defaultProps = {
       flvVersion: '1.5.0',
       forceDisableHls: false
     },
-    wistia: {
-      options: {},
-      playerId: null,
-      customControls: null
-    },
-    mixcloud: {
-      options: {
-        hide_cover: 1
-      }
-    },
-    twitch: {
-      options: {},
-      playerId: null
-    },
-    vidyard: {
-      options: {}
-    }
   },
   onReady: noop,
   onStart: noop,
